@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Corte e Ação — Comunidade Audiovisual</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<section id="authScreen" class="auth-screen">
+  <div class="auth-card"><img src="{{ url_for('static', filename='Image.png') }}" class="auth-logo" alt="Corte e Ação">
+    <div id="loginPanel"><h1>Entrar</h1><p class="muted">Entre na comunidade do audiovisual.</p>
+      <form id="loginForm"><label>E-mail<input id="loginEmail" type="email" required autocomplete="email"></label><label>Senha<input id="loginPassword" type="password" required autocomplete="current-password"></label><button class="primary full">Entrar</button></form>
+      <p class="auth-switch">Não tem conta? <button class="link-button" id="toRegister">Criar conta</button></p>
+    </div>
+    <div id="registerPanel" class="hidden"><h1>Criar conta</h1><p class="muted">Faça parte da comunidade audiovisual.</p>
+      <form id="registerForm"><label>Nome<input id="registerName" maxlength="80" required autocomplete="name"></label><label>E-mail<input id="registerEmail" type="email" required autocomplete="email"></label><label>Senha <small>(mínimo 8 caracteres)</small><input id="registerPassword" type="password" minlength="8" required autocomplete="new-password"></label><button class="primary full">Criar conta</button></form>
+      <p class="auth-switch">Já tem conta? <button class="link-button" id="toLogin">Voltar ao login</button></p>
+    </div><p id="authError" class="error" role="alert"></p>
+  </div>
+</section>
+<div id="appScreen" class="app-shell hidden">
+  <aside class="sidebar"><div class="brand"><img src="{{ url_for('static', filename='Image.png') }}" alt="Logo Corte e Ação"><span>CORTE <b>& AÇÃO</b></span></div>
+    <button class="nav-item selected" data-view="chat">⌂ <span>Comunidade</span></button><button class="nav-item" data-view="explore">⌕ <span>Explorar vagas</span></button><button class="nav-item" data-view="saved">▣ <span>Minhas vagas salvas</span></button><button class="nav-item" data-view="myjobs">▤ <span>Vagas publicadas</span></button><button class="nav-item" data-view="applications">☷ <span>Minhas candidaturas</span></button>
+    <div class="sidebar-heading">CANAIS</div><div id="channelList" class="channel-list"></div><button id="createChannelBtn" class="nav-item create-channel">＋ <span>Criar canal</span></button>
+    <div class="sidebar-user"><div id="sidebarAvatar" class="avatar">CA</div><div class="user-label"><strong id="sidebarName">Usuário</strong><small id="sidebarProfession">Profissional audiovisual</small></div><button id="settingsBtn" class="icon-btn" title="Configurações" aria-label="Configurações">⚙</button></div>
+  </aside>
+  <main class="main-area"><header class="topbar"><div><div class="eyebrow" id="viewEyebrow">COMUNIDADE</div><h2 id="viewTitle"># geral</h2></div><div class="top-actions"><button id="searchMessagesBtn" class="secondary">⌕ <span>Pesquisar mensagens</span></button><button id="pinnedBtn" class="secondary" title="Mensagens fixadas">📌 <span>Fixadas</span></button><button id="publishJobBtn" class="primary hidden">＋ Publicar vaga</button></div></header>
+    <section id="chatView" class="chat-view"><div id="messages" class="messages"><div class="empty-state">Carregando mensagens...</div></div><form id="messageForm" class="composer"><label class="attach-btn" for="messageFile" title="Anexar arquivo">＋</label><input id="messageFile" type="file" class="hidden" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.webp"><input id="messageInput" maxlength="2000" placeholder="Enviar mensagem..." autocomplete="off"><button class="send-btn" aria-label="Enviar mensagem">➤</button></form><p class="hint">Respeite os outros profissionais. Arquivos: até 8 MB.</p></section>
+    <section id="contentView" class="content-view hidden"></section>
+  </main>
+  <aside class="members-panel"><h3>MEMBROS</h3><p class="member-count" id="memberCount">Carregando...</p><div id="memberList"></div><div class="community-note"><strong>🎬 Feito para quem faz acontecer.</strong><p>Encontre profissionais, compartilhe experiências e descubra oportunidades no audiovisual.</p></div></aside>
+</div>
+
+<div id="settingsModal" class="modal hidden"><div class="modal-card wide"><button class="modal-close" data-close="settingsModal">×</button><h2>Meu perfil</h2><p class="muted">Apresente sua experiência para outros profissionais.</p><form id="profileForm" class="form-grid"><label>Nome<input id="profileName" required maxlength="80"></label><label>E-mail (somente leitura)<input id="profileEmail" disabled></label><label>Profissão / área<input id="profileProfession" maxlength="100" placeholder="Ex.: Técnico de áudio"></label><label>Cidade ou região<input id="profileLocation" maxlength="120" placeholder="Ex.: São Paulo - SP"></label><label class="span-two">Sobre mim<textarea id="profileBio" maxlength="500" rows="3" placeholder="Conte um pouco sobre sua experiência..."></textarea></label><label class="span-two">Portfólio / site<input id="profilePortfolio" type="url" maxlength="250" placeholder="https://..."></label><label class="span-two">Foto de perfil<input id="avatarFile" type="file" accept="image/png,image/jpeg,image/webp"></label><div class="span-two modal-actions"><button class="primary">Salvar perfil</button><button type="button" id="logoutBtn" class="danger">Sair da conta</button></div></form><p id="profileMessage" class="feedback"></p></div></div>
+
+<div id="jobModal" class="modal hidden"><div class="modal-card wide"><button class="modal-close" data-close="jobModal">×</button><h2>Publicar vaga</h2><p class="muted">Compartilhe uma oportunidade com a comunidade.</p><form id="jobForm" class="form-grid"><label>Título da vaga *<input id="jobTitle" maxlength="120" required placeholder="Ex.: Editor de vídeo para clipe"></label><label>Empresa / projeto<input id="jobCompany" maxlength="120" placeholder="Nome da produtora ou projeto"></label><label>Área profissional *<select id="jobArea" required><option value="">Selecione</option><option>Áudio</option><option>Direção</option><option>Fotografia</option><option>Produção</option><option>Edição</option><option>Iluminação</option><option>Roteiro</option><option>Animação / VFX</option><option>Arte / Cenografia</option><option>Outra</option></select></label><label>Tipo de trabalho<select id="jobType"><option>Freelancer</option><option>Temporário</option><option>Estágio</option><option>Fixo</option><option>Projeto colaborativo</option></select></label><label>Local<input id="jobLocation" maxlength="150" placeholder="Cidade, remoto ou híbrido"></label><label>Remuneração<input id="jobPay" maxlength="100" placeholder="Ex.: R$ 300 por diária / não remunerado"></label><label>Prazo para candidatura<input id="jobDeadline" type="date"></label><label class="span-two">Descrição e requisitos *<textarea id="jobDescription" required maxlength="4000" rows="5" placeholder="Descreva as atividades, requisitos, datas e condições..."></textarea></label><div class="span-two modal-actions"><button class="primary">Publicar vaga</button></div></form><p id="jobFeedback" class="feedback"></p></div></div>
+
+<div id="searchModal" class="modal hidden"><div class="modal-card"><button class="modal-close" data-close="searchModal">×</button><h2>Pesquisar mensagens</h2><input id="messageSearchInput" placeholder="Digite uma palavra ou nome"><div id="messageSearchResults" class="result-list"></div></div></div>
+<div id="pinnedModal" class="modal hidden"><div class="modal-card"><button class="modal-close" data-close="pinnedModal">×</button><h2>Mensagens fixadas</h2><div id="pinnedResults" class="result-list"></div></div></div>
+<div id="applicationsModal" class="modal hidden"><div class="modal-card wide"><button class="modal-close" data-close="applicationsModal">×</button><h2 id="applicationsTitle">Candidaturas recebidas</h2><div id="applicationsList" class="result-list"></div></div></div>
+<div id="toast" class="toast" role="status"></div>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body></html>

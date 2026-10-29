@@ -1,0 +1,68 @@
+CREATE TABLE IF NOT EXISTS users (
+ id BIGSERIAL PRIMARY KEY,
+ name VARCHAR(80) NOT NULL,
+ email VARCHAR(190) NOT NULL UNIQUE,
+ password_hash VARCHAR(255) NOT NULL,
+ profession VARCHAR(100) NOT NULL DEFAULT '',
+ bio VARCHAR(500) NOT NULL DEFAULT '',
+ location VARCHAR(120) NOT NULL DEFAULT '',
+ portfolio_url VARCHAR(250) NOT NULL DEFAULT '',
+ avatar VARCHAR(255),
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS channels (
+ id BIGSERIAL PRIMARY KEY,
+ name VARCHAR(50) NOT NULL UNIQUE,
+ created_by BIGINT REFERENCES users(id) ON DELETE SET NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+ id BIGSERIAL PRIMARY KEY,
+ channel_id BIGINT NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+ user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ body TEXT NOT NULL,
+ attachment VARCHAR(255),
+ pinned BOOLEAN NOT NULL DEFAULT FALSE,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_messages_channel_id ON messages(channel_id,id);
+
+CREATE TABLE IF NOT EXISTS jobs (
+ id BIGSERIAL PRIMARY KEY,
+ user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ title VARCHAR(120) NOT NULL,
+ company VARCHAR(120) NOT NULL DEFAULT '',
+ area VARCHAR(80) NOT NULL,
+ description TEXT NOT NULL,
+ location VARCHAR(150) NOT NULL DEFAULT '',
+ work_type VARCHAR(40) NOT NULL DEFAULT 'Freelancer',
+ pay VARCHAR(100) NOT NULL DEFAULT '',
+ deadline DATE,
+ status VARCHAR(10) NOT NULL DEFAULT 'open' CHECK (status IN ('open','closed')),
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_jobs_status_created ON jobs(status,created_at);
+
+CREATE TABLE IF NOT EXISTS saved_jobs (
+ id BIGSERIAL PRIMARY KEY,
+ job_id BIGINT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+ user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE(job_id,user_id)
+);
+
+CREATE TABLE IF NOT EXISTS applications (
+ id BIGSERIAL PRIMARY KEY,
+ job_id BIGINT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+ user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ message VARCHAR(1000) NOT NULL DEFAULT '',
+ status VARCHAR(20) NOT NULL DEFAULT 'received' CHECK (status IN ('received','reviewing','selected','rejected')),
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE(job_id,user_id)
+);
+
+INSERT INTO channels (name) VALUES
+('geral'),('vagas-de-emprego'),('produção'),('direção'),('edição'),('áudio'),('fotografia'),('projetos-e-ideias')
+ON CONFLICT (name) DO NOTHING;
