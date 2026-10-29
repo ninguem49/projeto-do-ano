@@ -23,6 +23,24 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 DATABASE_URL = os.getenv('DATABASE_URL')
 
+def init_db():
+    schema_path = BASE_DIR / 'schema.sql'
+
+    with open(schema_path, 'r', encoding='utf-8') as file:
+        schema = file.read()
+
+    conn = psycopg2.connect(DATABASE_URL)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(schema)
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+init_db()
 
 def db():
     if 'db' not in g:
