@@ -94,3 +94,10 @@ def execute(sql, params=()):
 def current_user():
     uid = session.get('user_id')
     if not uid:
+        return None
+
+    return query(
+        'SELECT * FROM users WHERE id = %s',
+        (uid,),
+        one=True
+    )
